@@ -39,7 +39,7 @@ test_malformed1(void)
 	assertEqualIntA(a, ARCHIVE_OK, archive_read_support_format_all(a));
 	assertEqualIntA(a, ARCHIVE_OK, archive_read_open_filename(a, refname, 10240));
 	assertEqualIntA(a, ARCHIVE_FATAL, archive_read_next_header(a, &ae));
-	assertEqualIntA(a, ARCHIVE_OK, archive_read_free(a));
+	assertEqualInt(ARCHIVE_OK, archive_read_free(a));
 }
 
 static void
@@ -56,7 +56,7 @@ test_malformed2(void)
 	assertEqualIntA(a, ARCHIVE_OK, archive_read_support_format_all(a));
 	assertEqualIntA(a, ARCHIVE_OK, archive_read_open_filename(a, refname, 10240));
 	assertEqualIntA(a, ARCHIVE_FATAL, archive_read_next_header(a, &ae));
-	assertEqualIntA(a, ARCHIVE_OK, archive_read_free(a));
+	assertEqualInt(ARCHIVE_OK, archive_read_free(a));
 }
 
 
@@ -72,7 +72,7 @@ test_malformed3(void)
 	assertEqualIntA(a, ARCHIVE_OK, archive_read_support_filter_all(a));
 	assertEqualIntA(a, ARCHIVE_OK, archive_read_support_format_all(a));
 	assertEqualIntA(a, ARCHIVE_FATAL, archive_read_open_filename(a, refname, 10240));
-	assertEqualIntA(a, ARCHIVE_OK, archive_read_free(a));
+	assertEqualInt(ARCHIVE_OK, archive_read_free(a));
 }
 
 DEFINE_TEST(test_read_format_7zip_malformed)

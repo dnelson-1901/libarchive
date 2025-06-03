@@ -148,7 +148,7 @@ DEFINE_TEST(test_read_append_filter)
   assertEqualInt(1, archive_file_count(a));
   assertEqualInt(archive_filter_code(a, 0), ARCHIVE_COMPRESSION_GZIP);
   assertEqualInt(archive_format(a), ARCHIVE_FORMAT_TAR_USTAR);
-  assertEqualInt(ARCHIVE_OK, archive_read_close(a));
+  assertEqualIntA(a, ARCHIVE_OK, archive_read_close(a));
   assertEqualInt(ARCHIVE_OK,archive_read_free(a));
 }
 

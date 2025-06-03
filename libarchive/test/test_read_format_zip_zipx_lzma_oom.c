@@ -58,6 +58,6 @@ DEFINE_TEST(test_read_format_zip_zipx_lzma_oom)
 	assertEqualIntA(a, ARCHIVE_FATAL, archive_read_data(a, buf, sizeof(buf)));
 	assertEqualInt(ENOMEM, archive_errno(a));
 
-	assertEqualInt(ARCHIVE_OK, archive_read_close(a));
+	assertEqualIntA(a, ARCHIVE_OK, archive_read_close(a));
 	assertEqualInt(ARCHIVE_OK, archive_read_free(a));
 }

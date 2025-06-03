@@ -415,6 +415,7 @@ libarchive_test_SOURCES= \
 	libarchive/test/test_archive_set_error.c \
 	libarchive/test/test_archive_string.c \
 	libarchive/test/test_archive_string_conversion.c \
+	libarchive/test/test_archive_write_add_filter.c \
 	libarchive/test/test_archive_write_add_filter_by_name.c \
 	libarchive/test/test_archive_write_set_filter_option.c \
 	libarchive/test/test_archive_write_set_format_by_name.c \
@@ -466,14 +467,17 @@ libarchive_test_SOURCES= \
 	libarchive/test/test_read_disk_entry_from_file.c \
 	libarchive/test/test_read_extract.c \
 	libarchive/test/test_read_file_nonexistent.c \
+	libarchive/test/test_read_files_compressed.c \
 	libarchive/test/test_read_filter_compress.c \
 	libarchive/test/test_read_filter_grzip.c \
 	libarchive/test/test_read_filter_gzip_recursive.c \
 	libarchive/test/test_read_filter_lrzip.c \
+	libarchive/test/test_read_filter_lz4_raw.c \
 	libarchive/test/test_read_filter_lzop.c \
 	libarchive/test/test_read_filter_lzop_multiple_parts.c \
 	libarchive/test/test_read_filter_program.c \
 	libarchive/test/test_read_filter_program_signature.c \
+	libarchive/test/test_read_filter_zstd_raw.c \
 	libarchive/test/test_read_filter_uudecode.c \
 	libarchive/test/test_read_filter_uudecode_raw.c \
 	libarchive/test/test_read_format_7zip.c \
@@ -664,12 +668,14 @@ libarchive_test_SOURCES= \
 	libarchive/test/test_write_format_iso9660_empty.c \
 	libarchive/test/test_write_format_iso9660_filename.c \
 	libarchive/test/test_write_format_iso9660_joliet_id.c \
+	libarchive/test/test_write_format_iso9660_rockridge.c \
 	libarchive/test/test_write_format_iso9660_zisofs.c \
 	libarchive/test/test_write_format_mtree.c \
 	libarchive/test/test_write_format_mtree_absolute.c \
 	libarchive/test/test_write_format_mtree_absolute_path.c \
 	libarchive/test/test_write_format_mtree_classic.c \
 	libarchive/test/test_write_format_mtree_classic_indent.c\
+	libarchive/test/test_write_format_mtree_dotdot.c \
 	libarchive/test/test_write_format_mtree_fflags.c \
 	libarchive/test/test_write_format_mtree_no_separator.c \
 	libarchive/test/test_write_format_mtree_preset_digests.c \
@@ -680,6 +686,7 @@ libarchive_test_SOURCES= \
 	libarchive/test/test_write_format_raw_b64.c \
 	libarchive/test/test_write_format_shar_empty.c \
 	libarchive/test/test_write_format_tar.c \
+	libarchive/test/test_write_format_tar_empty_dirname.c \
 	libarchive/test/test_write_format_tar_empty.c \
 	libarchive/test/test_write_format_tar_sparse.c \
 	libarchive/test/test_write_format_tar_ustar.c \
@@ -689,6 +696,7 @@ libarchive_test_SOURCES= \
 	libarchive/test/test_write_format_xar.c \
 	libarchive/test/test_write_format_xar_bugs.c \
 	libarchive/test/test_write_format_xar_empty.c \
+	libarchive/test/test_write_format_xar_fflags.c \
 	libarchive/test/test_write_format_zip.c \
 	libarchive/test/test_write_format_zip64_stream.c \
 	libarchive/test/test_write_format_zip_compression_store.c \
@@ -815,13 +823,17 @@ libarchive_test_EXTRA_DIST=\
 	libarchive/test/test_rar_multivolume_uncompressed_files.part08.rar.uu \
 	libarchive/test/test_rar_multivolume_uncompressed_files.part09.rar.uu \
 	libarchive/test/test_rar_multivolume_uncompressed_files.part10.rar.uu \
+	libarchive/test/test_read_files_compressed.part01.uu \
+	libarchive/test/test_read_files_compressed.part02.uu \
 	libarchive/test/test_read_filter_grzip.tar.grz.uu \
 	libarchive/test/test_read_filter_gzip_recursive.gz.uu \
 	libarchive/test/test_read_filter_lrzip.tar.lrz.uu \
+	libarchive/test/test_read_filter_lz4_raw_skip.uu \
 	libarchive/test/test_read_filter_lzop.tar.lzo.uu \
 	libarchive/test/test_read_filter_lzop_multiple_parts.tar.lzo.uu \
 	libarchive/test/test_read_filter_uudecode_raw.uu \
 	libarchive/test/test_read_filter_uudecode_base64_raw.uu \
+	libarchive/test/test_read_filter_zstd_raw_loop.uu \
 	libarchive/test/test_read_format_mtree_crash747.mtree.bz2.uu \
 	libarchive/test/test_read_format_mtree_noprint.mtree.uu \
 	libarchive/test/test_read_format_7zip_bcj2_bzip2.7z.uu \
@@ -889,6 +901,8 @@ libarchive_test_EXTRA_DIST=\
 	libarchive/test/test_read_format_cab_filename_cp932.cab.uu \
 	libarchive/test/test_read_format_cab_lzx_oob.cab.uu \
 	libarchive/test/test_read_format_cab_skip_malformed.cab.uu \
+	libarchive/test/test_read_format_cpio_afio_header.part1.cpio.uu \
+	libarchive/test/test_read_format_cpio_afio_header.part2.cpio.uu \
 	libarchive/test/test_read_format_cpio_bin_be.cpio.uu \
 	libarchive/test/test_read_format_cpio_bin_le.cpio.uu \
 	libarchive/test/test_read_format_cpio_filename_cp866.cpio.uu \
@@ -973,7 +987,9 @@ libarchive_test_EXTRA_DIST=\
 	libarchive/test/test_read_format_rar4_encrypted_filenames.rar.uu \
 	libarchive/test/test_read_format_rar4_solid_encrypted.rar.uu \
 	libarchive/test/test_read_format_rar4_solid_encrypted_filenames.rar.uu \
+	libarchive/test/test_read_format_rar5_main_block_extra_bytes.rar.uu \
 	libarchive/test/test_read_format_rar5_only_crypt_exfld.rar.uu \
+	libarchive/test/test_read_format_rar5_skip_block_extra_bytes.rar.uu \
 	libarchive/test/test_read_format_rar5_unsupported_exfld.rar.uu \
 	libarchive/test/test_read_format_rar5_invalid_hash_valid_htime_exfld.rar.uu \
 	libarchive/test/test_read_format_rar5_encrypted.rar.uu \

@@ -60,7 +60,7 @@ test_with_hdrcharset(const char *charset)
 	archive_entry_free(ae);
 
 	assertEqualIntA(a, ARCHIVE_OK, archive_write_close(a));
-	assertEqualIntA(a, ARCHIVE_OK, archive_write_free(a));
+	assertEqualInt(ARCHIVE_OK, archive_write_free(a));
 	dumpfile("constructed.zip", buff, used);
 
 	/*

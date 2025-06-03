@@ -47,6 +47,7 @@ IF(ENABLE_TEST)
     test_archive_set_error.c
     test_archive_string.c
     test_archive_string_conversion.c
+    test_archive_write_add_filter.c
     test_archive_write_add_filter_by_name.c
     test_archive_write_set_filter_option.c
     test_archive_write_set_format_by_name.c
@@ -98,16 +99,19 @@ IF(ENABLE_TEST)
     test_read_disk_entry_from_file.c
     test_read_extract.c
     test_read_file_nonexistent.c
+    test_read_files_compressed.c
     test_read_filter_compress.c
     test_read_filter_grzip.c
     test_read_filter_gzip_recursive.c
     test_read_filter_lrzip.c
+    test_read_filter_lz4_raw.c
     test_read_filter_lzop.c
     test_read_filter_lzop_multiple_parts.c
     test_read_filter_program.c
     test_read_filter_program_signature.c
     test_read_filter_uudecode.c
     test_read_filter_uudecode_raw.c
+    test_read_filter_zstd_raw.c
     test_read_format_7zip.c
     test_read_format_7zip_encryption_data.c
     test_read_format_7zip_encryption_header.c
@@ -295,6 +299,7 @@ IF(ENABLE_TEST)
     test_write_format_iso9660_empty.c
     test_write_format_iso9660_filename.c
     test_write_format_iso9660_joliet_id.c
+    test_write_format_iso9660_rockridge.c
     test_write_format_iso9660_zisofs.c
     test_write_format_iso9660_bugs.c
     test_write_format_mtree.c
@@ -302,6 +307,7 @@ IF(ENABLE_TEST)
     test_write_format_mtree_absolute_path.c
     test_write_format_mtree_classic.c
     test_write_format_mtree_classic_indent.c
+    test_write_format_mtree_dotdot.c
     test_write_format_mtree_fflags.c
     test_write_format_mtree_no_separator.c
     test_write_format_mtree_preset_digests.c
@@ -312,6 +318,7 @@ IF(ENABLE_TEST)
     test_write_format_raw_b64.c
     test_write_format_shar_empty.c
     test_write_format_tar.c
+    test_write_format_tar_empty_dirname.c
     test_write_format_tar_empty.c
     test_write_format_tar_sparse.c
     test_write_format_tar_ustar.c
@@ -320,6 +327,7 @@ IF(ENABLE_TEST)
     test_write_format_warc_empty.c
     test_write_format_xar.c
     test_write_format_xar_empty.c
+    test_write_format_xar_fflags.c
     test_write_format_xar_bugs.c
     test_write_format_zip.c
     test_write_format_zip64_stream.c

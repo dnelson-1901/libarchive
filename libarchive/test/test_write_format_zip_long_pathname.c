@@ -62,7 +62,7 @@ DEFINE_TEST(test_write_format_zip_long_pathname)
 	assertEqualInt(ARCHIVE_OK, archive_write_header(a, ae));
 	archive_entry_free(ae);
 
-	assertEqualInt(ARCHIVE_OK, archive_write_close(a));
+	assertEqualIntA(a, ARCHIVE_OK, archive_write_close(a));
 	assertEqualInt(ARCHIVE_OK, archive_write_free(a));
 	free(pathname);
 
@@ -84,7 +84,7 @@ DEFINE_TEST(test_write_format_zip_long_pathname)
 	assertEqualInt(ARCHIVE_FAILED, archive_write_header(a, ae));
 	archive_entry_free(ae);
 
-	assertEqualInt(ARCHIVE_OK, archive_write_close(a));
+	assertEqualIntA(a, ARCHIVE_OK, archive_write_close(a));
 	assertEqualInt(ARCHIVE_OK, archive_write_free(a));
 	free(pathname);
 
@@ -106,7 +106,7 @@ DEFINE_TEST(test_write_format_zip_long_pathname)
 	assertEqualInt(ARCHIVE_FAILED, archive_write_header(a, ae));
 	archive_entry_free(ae);
 
-	assertEqualInt(ARCHIVE_OK, archive_write_close(a));
+	assertEqualIntA(a, ARCHIVE_OK, archive_write_close(a));
 	assertEqualInt(ARCHIVE_OK, archive_write_free(a));
 	free(pathname);
 

@@ -253,41 +253,38 @@ client_close_proxy(struct archive_read_filter *self)
 }
 
 static int
-client_open_proxy(struct archive_read_filter *self)
-{
-  int r = ARCHIVE_OK;
-	if (self->archive->client.opener != NULL)
-		r = (self->archive->client.opener)(
-		    (struct archive *)self->archive, self->data);
-	return (r);
-}
-
-static int
 client_switch_proxy(struct archive_read_filter *self, unsigned int iindex)
 {
-  int r1 = ARCHIVE_OK, r2 = ARCHIVE_OK;
-	void *data2 = NULL;
+	struct archive_read *a;
+	int r1 = ARCHIVE_OK, r2 = ARCHIVE_OK;
+	void *data2;
+
+	while (self->upstream != NULL)
+		self = self->upstream;
+	a = self->archive;
 
 	/* Don't do anything if already in the specified data node */
-	if (self->archive->client.cursor == iindex)
+	if (a->client.cursor == iindex)
 		return (ARCHIVE_OK);
 
-	self->archive->client.cursor = iindex;
-	data2 = self->archive->client.dataset[self->archive->client.cursor].data;
-	if (self->archive->client.switcher != NULL)
+	a->client.cursor = iindex;
+	data2 = a->client.dataset[a->client.cursor].data;
+	if (a->client.switcher != NULL)
 	{
-		r1 = r2 = (self->archive->client.switcher)
-			((struct archive *)self->archive, self->data, data2);
+		r1 = r2 = (a->client.switcher)
+			((struct archive *)a, self->data, data2);
 		self->data = data2;
 	}
 	else
 	{
 		/* Attempt to call close and open instead */
-		if (self->archive->client.closer != NULL)
-			r1 = (self->archive->client.closer)
-				((struct archive *)self->archive, self->data);
+		if (a->client.closer != NULL)
+			r1 = (a->client.closer)
+				((struct archive *)a, self->data);
 		self->data = data2;
-		r2 = client_open_proxy(self);
+		if (a->client.opener != NULL)
+			r2 = (a->client.opener)
+				((struct archive *)a, self->data);
 	}
 	return (r1 < r2) ? r1 : r2;
 }
@@ -1381,7 +1378,7 @@ __archive_read_filter_ahead(struct archive_read_filter *filter,
 
 		/* Move data forward in copy buffer if necessary. */
 		if (filter->next > filter->buffer &&
-		    filter->next + min > filter->buffer + filter->buffer_size) {
+		    min > filter->buffer_size - (filter->next - filter->buffer)) {
 			if (filter->avail > 0)
 				memmove(filter->buffer, filter->next,
 				    filter->avail);

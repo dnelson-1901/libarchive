@@ -88,7 +88,7 @@ static int archive_filter_lz4_write(struct archive_write_filter *,
 		    const void *, size_t);
 
 /*
- * Add a lz4 compression filter to this write handle.
+ * Add an lz4 compression filter to this write handle.
  */
 int
 archive_write_add_filter_lz4(struct archive *_a)
@@ -228,7 +228,7 @@ archive_filter_lz4_open(struct archive_write_filter *f)
 {
 	struct private_data *data = (struct private_data *)f->data;
 	size_t required_size;
-	static size_t const bkmap[] = { 64 * 1024, 256 * 1024, 1 * 1024 * 1024,
+	static const size_t bkmap[] = { 64 * 1024, 256 * 1024, 1 * 1024 * 1024,
 			   4 * 1024 * 1024 };
 	size_t pre_block_size;
 
@@ -243,7 +243,7 @@ archive_filter_lz4_open(struct archive_write_filter *f)
 		free(data->out_buffer);
 		if (f->archive->magic == ARCHIVE_WRITE_MAGIC) {
 			/* Buffer size should be a multiple number of
-			 * the of bytes per block for performance. */
+			 * the bytes per block for performance. */
 			bpb = archive_write_get_bytes_per_block(f->archive);
 			if (bpb > bs)
 				bs = bpb;
@@ -417,9 +417,11 @@ lz4_write_stream_descriptor(struct archive_write_filter *f)
 	sd[5] = (data->block_maximum_size << 4);
 	sd[6] = (__archive_xxhash.XXH32(&sd[4], 2, 0) >> 8) & 0xff;
 	data->out += 7;
-	if (data->stream_checksum)
+	if (data->stream_checksum) {
 		data->xxh32_state = __archive_xxhash.XXH32_init(0);
-	else
+		if (data->xxh32_state == NULL)
+			return (ARCHIVE_FATAL);
+	} else
 		data->xxh32_state = NULL;
 	return (ARCHIVE_OK);
 }

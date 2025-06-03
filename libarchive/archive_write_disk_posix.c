@@ -308,6 +308,10 @@ struct archive_write_disk {
 	int			 stream_valid;
 	int			 decmpfs_compression_level;
 #endif
+#if !(ARCHIVE_XATTR_LINUX || ARCHIVE_XATTR_DARWIN || ARCHIVE_XATTR_AIX ||\
+    ARCHIVE_XATTR_FREEBSD)
+	int			 warning_done;
+#endif
 };
 
 /*
@@ -4693,12 +4697,10 @@ set_xattrs(struct archive_write_disk *a)
 static int
 set_xattrs(struct archive_write_disk *a)
 {
-	static int warning_done = 0;
-
 	/* If there aren't any extended attributes, then it's okay not
 	 * to extract them, otherwise, issue a single warning. */
-	if (archive_entry_xattr_count(a->entry) != 0 && !warning_done) {
-		warning_done = 1;
+	if (archive_entry_xattr_count(a->entry) != 0 && !a->warning_done) {
+		a->warning_done = 1;
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Cannot restore extended attributes on this system");
 		return (ARCHIVE_WARN);

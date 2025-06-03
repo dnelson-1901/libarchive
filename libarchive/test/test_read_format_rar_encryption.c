@@ -81,7 +81,7 @@ static void test_encrypted_rar_archive(const char *filename, int filenamesEncryp
 		assertEqualInt(ARCHIVE_FATAL, archive_read_data(a, buff, sizeof(buff)));
 
 		/* Additional attempts to read headers are futile */
-		assertEqualInt(ARCHIVE_OK, archive_read_close(a));
+		assertEqualIntA(a, ARCHIVE_OK, archive_read_close(a));
 		assertEqualInt(ARCHIVE_OK, archive_read_free(a));
 		return;
 	}
@@ -126,7 +126,7 @@ static void test_encrypted_rar_archive(const char *filename, int filenamesEncryp
 	assertEqualIntA(a, ARCHIVE_EOF, archive_read_next_header(a, &ae));
 
 	/* Close the archive. */
-	assertEqualInt(ARCHIVE_OK, archive_read_close(a));
+	assertEqualIntA(a, ARCHIVE_OK, archive_read_close(a));
 	assertEqualInt(ARCHIVE_OK, archive_read_free(a));
 }
 

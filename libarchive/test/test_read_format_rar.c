@@ -3807,7 +3807,7 @@ DEFINE_TEST(test_read_format_rar_multivolume_uncompressed_files)
   assertEqualIntA(a, ARCHIVE_EOF, archive_read_next_header(a, &ae));
   assertEqualIntA(a, 16, archive_file_count(a));
   assertEqualIntA(a, ARCHIVE_OK, archive_read_close(a));
-  assertEqualIntA(a, ARCHIVE_OK, archive_read_free(a));
+  assertEqualInt(ARCHIVE_OK, archive_read_free(a));
 }
 
 DEFINE_TEST(test_read_format_rar_endarc_huge)

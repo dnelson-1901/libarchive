@@ -1808,6 +1808,7 @@ file_free(struct xar_file *file)
 	archive_string_free(&(file->uname));
 	archive_string_free(&(file->gname));
 	archive_string_free(&(file->hardlink));
+	archive_string_free(&(file->fflags_text));
 	xattr = file->xattr_list;
 	while (xattr != NULL) {
 		struct xattr *next;
@@ -2691,11 +2692,12 @@ xml_data(void *userData, const char *s, size_t len)
 #if DEBUG
 	{
 		char buff[1024];
-		if (len > (int)(sizeof(buff)-1))
-			len = (int)(sizeof(buff)-1);
-		strncpy(buff, s, len);
-		buff[len] = 0;
-		fprintf(stderr, "\tlen=%d:\"%s\"\n", len, buff);
+		size_t dlen = len;
+		if (dlen > sizeof(buff) - 1)
+			dlen = sizeof(buff) - 1;
+		strncpy(buff, s, dlen);
+		buff[dlen] = 0;
+		fprintf(stderr, "\tlen=%zu:\"%s\"\n", dlen, buff);
 	}
 #endif
 	switch (xar->xmlsts) {

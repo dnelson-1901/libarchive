@@ -35,6 +35,7 @@
 DEFINE_TEST(test_archive_parse_date)
 {
 	time_t now = time(NULL);
+	long long expected;
 
 	assertEqualInt(archive_parse_date(now, "Jan 1, 1970 UTC"), 0);
 	assertEqualInt(archive_parse_date(now, "7:12:18-0530 4 May 1983"), 420900138);
@@ -97,7 +98,8 @@ DEFINE_TEST(test_archive_parse_date)
 	assertEqualInt(archive_parse_date(now, "@100 tomorrow"), -1);
 
 	/* Verify handling of overlarge numbers */
-	assertEqualInt(archive_parse_date(now, "Jan 1, 9999 UTC"), 253375948800LL);
+	expected = sizeof(time_t) == 4 ? -1 : 253375948800LL;
+	assertEqualInt(archive_parse_date(now, "Jan 1, 9999 UTC"), expected);
 	assertEqualInt(archive_parse_date(now, "Jan 1, 10000 UTC"), -1);
 	assertEqualInt(archive_parse_date(now, "Jan 1, 99999 UTC"), -1);
 	assertEqualInt(archive_parse_date(time(NULL), "2147483647-01-01 00:00:00"), -1);

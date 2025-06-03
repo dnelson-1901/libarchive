@@ -245,6 +245,7 @@ _warc_header(struct archive_write *a, struct archive_entry *entry)
 		r = _popul_ehdr(&hdr, MAX_HDR_SIZE, rh);
 		if (r < 0) {
 			/* don't bother */
+			archive_string_free(&hdr);
 			archive_set_error(
 				&a->archive,
 				ARCHIVE_ERRNO_FILE_FORMAT,

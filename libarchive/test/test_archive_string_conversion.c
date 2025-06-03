@@ -966,6 +966,10 @@ test_archive_string_conversion_fail_utf8_mbs(struct archive *a,
 DEFINE_TEST(test_archive_string_conversion_fail_c)
 {
 	struct archive *a;
+#if defined(__sun)
+	skipping("Solaris iconv substitutes unrepresentable UTF-8 characters");
+	return;
+#endif
 
 	/* Test the C locale by not calling setlocale.  */
 
@@ -983,6 +987,10 @@ DEFINE_TEST(test_archive_string_conversion_fail_latin1)
 {
 	struct archive *a;
 	struct archive_string_conv *sconv;
+#if defined(__sun)
+	skipping("Solaris iconv substitutes unrepresentable UTF-8 characters");
+	return;
+#endif
 
 	/* Test a Latin-1 locale.  */
 	if (

@@ -155,7 +155,7 @@
 #define UNP_BUFFER_SIZE   (128 * 1024)
 
 /* Define this here for non-Windows platforms */
-#if !((defined(__WIN32__) || defined(_WIN32) || defined(__WIN32)) && !defined(__CYGWIN__))
+#ifndef FILE_ATTRIBUTE_DIRECTORY
 #define FILE_ATTRIBUTE_DIRECTORY 0x10
 #endif
 
@@ -2840,6 +2840,10 @@ make_table(struct archive_read *a, struct huffman_code *code)
     code->tablesize = code->maxlength;
 
   code->table = calloc(((size_t)1U) << code->tablesize, sizeof(*code->table));
+  if (code->table == NULL) {
+    archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+    return (ARCHIVE_FATAL);
+  }
 
   return make_table_recurse(a, code, 0, code->table, 0, code->tablesize);
 }

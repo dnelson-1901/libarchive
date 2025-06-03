@@ -1494,3 +1494,52 @@ DEFINE_TEST(test_read_format_rar5_invalidhash_and_validhtime_exfld)
 
 	EPILOGUE();
 }
+
+/*
+ * Regression tests for the RAR5 base-block parser leaving unconsumed body
+ * bytes before returning ARCHIVE_RETRY (GHSA-9h2c-464f-j3hj). Each archive is
+ * the test_read_format_rar5_stored archive with extra, unread bytes appended
+ * to a no-data block's body. Before the fix the reader did not skip those
+ * bytes, so the stream misaligned and the following file entry was lost; with
+ * the fix the trailing bytes are skipped and helloworld.txt is read normally.
+ */
+DEFINE_TEST(test_read_format_rar5_main_block_extra_bytes)
+{
+	const char helloworld_txt[] = "hello libarchive test suite!\n";
+	la_ssize_t file_size = sizeof(helloworld_txt) - 1;
+	char buff[64];
+
+	/* HEAD_MAIN block padded with trailing bytes the parser does not read. */
+	PROLOGUE("test_read_format_rar5_main_block_extra_bytes.rar");
+
+	assertA(0 == archive_read_next_header(a, &ae));
+	assertEqualString("helloworld.txt", archive_entry_pathname(ae));
+	assertEqualInt(file_size, archive_entry_size(ae));
+	assertA(file_size == archive_read_data(a, buff, file_size));
+	assertEqualMem(buff, helloworld_txt, file_size);
+
+	assertA(ARCHIVE_EOF == archive_read_next_header(a, &ae));
+
+	EPILOGUE();
+}
+
+DEFINE_TEST(test_read_format_rar5_skip_block_extra_bytes)
+{
+	const char helloworld_txt[] = "hello libarchive test suite!\n";
+	la_ssize_t file_size = sizeof(helloworld_txt) - 1;
+	char buff[64];
+
+	/* An unknown HFL_SKIP_IF_UNKNOWN block carrying trailing bytes is inserted
+	 * before the file entry; the parser must skip the entire block. */
+	PROLOGUE("test_read_format_rar5_skip_block_extra_bytes.rar");
+
+	assertA(0 == archive_read_next_header(a, &ae));
+	assertEqualString("helloworld.txt", archive_entry_pathname(ae));
+	assertEqualInt(file_size, archive_entry_size(ae));
+	assertA(file_size == archive_read_data(a, buff, file_size));
+	assertEqualMem(buff, helloworld_txt, file_size);
+
+	assertA(ARCHIVE_EOF == archive_read_next_header(a, &ae));
+
+	EPILOGUE();
+}

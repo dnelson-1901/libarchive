@@ -70,21 +70,6 @@
 #define	IO_REPARSE_TAG_SYMLINK 0xA000000CL
 #endif
 
-static BOOL SetFilePointerEx_perso(HANDLE hFile,
-                             LARGE_INTEGER liDistanceToMove,
-                             PLARGE_INTEGER lpNewFilePointer,
-                             DWORD dwMoveMethod)
-{
-	LARGE_INTEGER li;
-	li.QuadPart = liDistanceToMove.QuadPart;
-	li.LowPart = SetFilePointer(
-	    hFile, li.LowPart, &li.HighPart, dwMoveMethod);
-	if(lpNewFilePointer) {
-		lpNewFilePointer->QuadPart = li.QuadPart;
-	}
-	return li.LowPart != (DWORD)-1 || GetLastError() == NO_ERROR;
-}
-
 struct fixup_entry {
 	struct fixup_entry	*next;
 	struct archive_acl	 acl;
@@ -682,7 +667,7 @@ la_CreateSymbolicLinkW(const wchar_t *linkname, const wchar_t *target,
 		f = la_GetFunctionKernel32("CreateSymbolicLinkW");
 	}
 #else
-# if !defined(WINAPI_FAMILY_PARTITION) || WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+# if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM)
 	f = CreateSymbolicLinkW;
 # else
 	f = NULL;
@@ -773,7 +758,7 @@ la_ftruncate(HANDLE handle, int64_t length)
 		return (-1);
 	}
 	distance.QuadPart = length;
-	if (!SetFilePointerEx_perso(handle, distance, NULL, FILE_BEGIN)) {
+	if (!SetFilePointerEx(handle, distance, NULL, FILE_BEGIN)) {
 		la_dosmaperr(GetLastError());
 		return (-1);
 	}

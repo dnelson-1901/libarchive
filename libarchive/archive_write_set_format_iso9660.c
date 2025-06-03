@@ -766,7 +766,7 @@ struct iso9660 {
 #ifdef HAVE_ZLIB_H
 		/*
 		 * Copy a compressed file to iso9660.zisofs.temp_fd
-		 * and also copy a uncompressed file(original file) to
+		 * and also copy an uncompressed file(original file) to
 		 * iso9660.temp_fd . If the number of logical block
 		 * of the compressed file is less than the number of
 		 * logical block of the uncompressed file, use it and
@@ -6217,6 +6217,8 @@ isoent_gen_iso9660_identifier(struct archive_write *a, struct isoent *isoent,
 				noff = ext_off - 1;
 			else
 				noff = ext_off;
+			if (noff < 0)
+				noff = 0;
 		}
 		/* Register entry to the identifier resolver. */
 		idr_register(idr, np, weight, noff);
@@ -6368,6 +6370,8 @@ isoent_gen_joliet_identifier(struct archive_write *a, struct isoent *isoent,
 			noff = ext_off - 2;
 		else
 			noff = ext_off;
+		if (noff < 0)
+			noff = 0;
 		/* Register entry to the identifier resolver. */
 		idr_register(idr, np, weight, noff);
 	}

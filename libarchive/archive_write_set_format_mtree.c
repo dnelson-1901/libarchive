@@ -801,6 +801,8 @@ mtree_entry_new(struct archive_write *a, struct archive_entry *entry,
 		archive_strcpy(&me->symlink, s);
 	me->nlink = archive_entry_nlink(entry);
 	me->filetype = archive_entry_filetype(entry);
+	if (me->filetype == AE_IFLNK && me->symlink.s == NULL)
+		archive_strcpy(&me->symlink, "");
 	me->mode = archive_entry_mode(entry) & 07777;
 	me->uid = archive_entry_uid(entry);
 	me->gid = archive_entry_gid(entry);
@@ -1884,20 +1886,29 @@ mtree_entry_setup_filenames(struct archive_write *a, struct mtree_entry *file,
 				 *     --> 'dir/dir2/'
 				 */
 				char *rp = p -1;
+				size_t off;
+				for (off = 4; p[off] == '/'; off++)
+					;
 				while (rp >= dirname) {
 					if (*rp == '/')
 						break;
 					--rp;
 				}
 				if (rp > dirname) {
-					strcpy(rp, p+3);
+					memmove(rp + 1, p + off, strlen(p + off) + 1);
 					p = rp;
 				} else {
-					strcpy(dirname, p+4);
+					memmove(dirname, p + off, strlen(p + off) + 1);
 					p = dirname;
 				}
 			} else
 				p++;
+		} else if (p == dirname && p[0] == '.' && p[1] == '.' && p[2] == '/') {
+			size_t off;
+			for (off = 3; p[off] == '/'; off++)
+				;
+			memmove(dirname, p + off, strlen(p + off) + 1);
+			p = dirname;
 		} else
 			p++;
 	}
@@ -2077,6 +2088,11 @@ mtree_entry_tree_add(struct archive_write *a, struct mtree_entry **filep)
 	file = *filep;
 	if (file->parentdir.length == 0 && file->basename.length == 1 &&
 	    file->basename.s[0] == '.') {
+		if (file->filetype != AE_IFDIR) {
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
+				"Root entry '.' must be a directory");
+			return (ARCHIVE_FAILED);
+		}
 		file->parent = file;
 		if (mtree->root != NULL) {
 			np = mtree->root;

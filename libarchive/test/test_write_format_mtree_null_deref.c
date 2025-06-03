@@ -171,3 +171,63 @@ DEFINE_TEST(test_write_format_mtree_null_deref)
 	archive_write_free(a);
 	free(out_buf);
 }
+
+DEFINE_TEST(test_write_format_mtree_no_set_symlink)
+{
+	struct archive *a;
+	size_t buffsize = 4096;
+	char *buff;
+	size_t used;
+	assert((buff = malloc(buffsize)) != NULL);
+	assert((a = archive_write_new()) != NULL);
+	assertEqualIntA(a, ARCHIVE_OK, archive_write_set_format_mtree(a));
+	assertEqualIntA(a, ARCHIVE_OK,
+		archive_write_open_memory(a, buff, buffsize, &used));
+
+	struct archive_entry *ae;
+	assert((ae = archive_entry_new()) != NULL);
+	archive_entry_set_pathname(ae, "./badlink"),
+	archive_entry_set_filetype(ae, AE_IFLNK);
+	archive_entry_set_perm(ae, 0777);
+	/* archive_entry_set_symlink(ae, "target"); (omitted) */
+	assertEqualIntA(a, ARCHIVE_OK, archive_write_header(a, ae));
+	archive_entry_free(ae);
+
+	assertEqualIntA(a, ARCHIVE_OK, archive_write_close(a));
+	assertEqualInt(ARCHIVE_OK, archive_write_free(a));
+	free(buff);
+}
+
+DEFINE_TEST(test_write_format_mtree_reg_dot_root)
+{
+	struct archive *a;
+	size_t buffsize = 4096;
+	char *buff;
+	size_t used;
+	assert((buff = malloc(buffsize)) != NULL);
+	assert((a = archive_write_new()) != NULL);
+	assertEqualIntA(a, ARCHIVE_OK, archive_write_set_format_mtree(a));
+	assertEqualIntA(a, ARCHIVE_OK,
+		archive_write_open_memory(a, buff, buffsize, &used));
+
+	struct archive_entry *ae;
+	/* Entry 1: "." with filetype AE_IFREG (not AE_IFDIR). */
+	assert((ae = archive_entry_new()) != NULL);
+	archive_entry_set_pathname(ae, "."),
+	archive_entry_set_filetype(ae, AE_IFREG);
+	archive_entry_set_perm(ae, 0644);
+	assertEqualIntA(a, ARCHIVE_FAILED, archive_write_header(a, ae));
+	archive_entry_free(ae);
+
+	/* Entry 2: any child path. */
+	assert((ae = archive_entry_new()) != NULL);
+	archive_entry_set_pathname(ae, "./foo"),
+	archive_entry_set_filetype(ae, AE_IFREG);
+	archive_entry_set_perm(ae, 0644);
+	assertEqualIntA(a, ARCHIVE_OK, archive_write_header(a, ae));
+	archive_entry_free(ae);
+
+	assertEqualIntA(a, ARCHIVE_OK, archive_write_close(a));
+	assertEqualInt(ARCHIVE_OK, archive_write_free(a));
+	free(buff);
+}

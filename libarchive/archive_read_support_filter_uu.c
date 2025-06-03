@@ -43,8 +43,6 @@
 /* Maximum lookahead during bid phase */
 #define UUENCODE_BID_MAX_READ 128*1024 /* in bytes */
 
-#define UUENCODE_MAX_LINE_LENGTH 34*1024 /* in bytes */
-
 struct uudecode {
 	int64_t		 total;
 	unsigned char	*in_buff;
@@ -224,7 +222,7 @@ bid_get_line(struct archive_read_filter *filter,
 		len = get_line(*b, *avail, nl);
 
 	/*
-	 * Read bytes more while it does not reach the end of line.
+	 * Read more bytes while it does not reach the end of line.
 	 */
 	while (*nl == 0 && len == *avail && !quit &&
 	    *nbytes_read < UUENCODE_BID_MAX_READ) {
@@ -318,6 +316,9 @@ uudecode_bidder_bid(struct archive_read_filter_bidder *self,
 			return (0);
 		/* Get a length of decoded bytes. */
 		l = UUDECODE(*b++); len--;
+		if (l == 0)
+			/* empty encoded file */
+			return (firstline+30);
 		if (l > 45)
 			/* Normally, maximum length is 45(character 'M'). */
 			return (0);
@@ -340,6 +341,11 @@ uudecode_bidder_bid(struct archive_read_filter_bidder *self,
 			return (firstline+30);
 	} else if (l == 13) {
 		/* "begin-base64 " */
+
+		if (avail == 0 && memcmp(b, "====", 4) == 0)
+			/* empty encoded file */
+			return (firstline+40);
+
 		while (len-nl > 0) {
 			if (!base64[*b++])
 				return (0);
@@ -423,7 +429,6 @@ ensure_in_buff_size(struct archive_read_filter *self,
 		/* Allocate the new buffer. */
 		ptr = malloc(newsize);
 		if (ptr == NULL) {
-			free(ptr);
 			archive_set_error(&self->archive->archive,
 			    ENOMEM,
     			    "Can't allocate data for uudecode");
@@ -480,13 +485,15 @@ read_more:
 	used = 0;
 	total = 0;
 	out = uudecode->out_buff;
+	if (avail_in > 2 * UUENCODE_BID_MAX_READ)
+		avail_in = 2 * UUENCODE_BID_MAX_READ;
 	ravail = avail_in;
 	if (uudecode->state == ST_IGNORE) {
 		used = avail_in;
 		goto finish;
 	}
 	if (uudecode->in_cnt) {
-		if (uudecode->in_cnt > UUENCODE_MAX_LINE_LENGTH) {
+		if (uudecode->in_cnt > UUENCODE_BID_MAX_READ) {
 			archive_set_error(&self->archive->archive,
 			    ARCHIVE_ERRNO_FILE_FORMAT,
 			    "Invalid format data");
@@ -523,6 +530,12 @@ read_more:
 			    "Insufficient compressed data");
 			return (ARCHIVE_FATAL);
 		}
+		if (len > UUENCODE_BID_MAX_READ) {
+			archive_set_error(&self->archive->archive,
+			    ARCHIVE_ERRNO_FILE_FORMAT,
+			    "Invalid format data");
+			return (ARCHIVE_FATAL);
+		}
 		llen = len;
 		if ((nl == 0) && (uudecode->state != ST_UUEND)) {
 			if (total == 0 && ravail <= 0) {
@@ -544,7 +557,7 @@ read_more:
 			uudecode->in_cnt = len;
 			if (total == 0) {
 				/* Do not return 0; it means end-of-file.
-				 * We should try to read bytes more. */
+				 * We should try to read more bytes. */
 				__archive_read_filter_consume(
 				    self->upstream, ravail);
 				goto read_more;
@@ -586,11 +599,11 @@ read_more:
 					if (uudecode->name != NULL)
 						free(uudecode->name);
 					uudecode->name = malloc(namelen + 1);
-			                if (uudecode->name == NULL) {
-					archive_set_error(
-					    &self->archive->archive,
-					    ENOMEM,
-					    "Can't allocate data for uudecode");
+					if (uudecode->name == NULL) {
+						archive_set_error(
+						    &self->archive->archive,
+						    ENOMEM,
+						    "Can't allocate data for uudecode");
 						return (ARCHIVE_FATAL);
 					}
 					strncpy(uudecode->name,
