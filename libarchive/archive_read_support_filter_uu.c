@@ -316,6 +316,9 @@ uudecode_bidder_bid(struct archive_read_filter_bidder *b,
 			return (0);
 		/* Get a length of decoded bytes. */
 		l = UUDECODE(*p++); len--;
+		if (l == 0)
+			/* empty encoded file */
+			return (firstline+30);
 		if (l > 45)
 			/* Normally, maximum length is 45(character 'M'). */
 			return (0);
@@ -338,6 +341,12 @@ uudecode_bidder_bid(struct archive_read_filter_bidder *b,
 			return (firstline+30);
 	} else if (l == 13) {
 		/* "begin-base64 " */
+
+		if (avail == 0 && (memcmp(p, "====\n", 5) == 0 ||
+			memcmp(p, "====\r\n", 6) == 0))
+			/* empty encoded file */
+			return (firstline+40);
+
 		while (len-nl > 0) {
 			if (!base64[*p++])
 				return (0);
