@@ -29,6 +29,7 @@
  * an alignment boundary in the archive stream, so it can be reflinked out.
  */
 
+#undef ALIGN
 #define ALIGN 4096
 
 struct file {
