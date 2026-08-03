@@ -111,6 +111,6 @@ DEFINE_TEST(test_basic)
 	run_tar("copy_ustar", "--format=ustar", "", flist);
 	verify_files("copy_ustar");
 
-	/* tar doesn't handle cpio symlinks correctly */
-	/* run_tar("copy_odc", "--format=odc", ""); */
+	run_tar("copy_odc", "--format=odc", "", flist);
+	verify_files("copy_odc");
 }
