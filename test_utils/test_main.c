@@ -806,6 +806,9 @@ static void strdump(const char *e, const char *p, int ewidth, int utf8)
 	if (p == NULL) {
 		logprintf("NULL\n");
 		return;
+	} else if (p < (const char *)65536) {
+		logprintf("small pointer value %p\n", p);
+		return;
 	}
 	logprintf("\"");
 	while (*p != '\0') {
@@ -866,7 +869,7 @@ assertion_equal_string(const char *file, int line,
 	int l1, l2;
 
 	assertion_count(file, line);
-	if (v1 == v2 || (v1 != NULL && v2 != NULL && strcmp(v1, v2) == 0))
+	if (v1 == v2 || (v1 > (const char *)65536 && v2 > (const char *)65536 && strcmp(v1, v2) == 0))
 		return (1);
 	failure_start(file, line, "%s != %s", e1, e2);
 	l1 = (int)strlen(e1);
