@@ -494,6 +494,7 @@ libarchive_test_SOURCES= \
 	libarchive/test/test_read_format_cab_filename.c \
 	libarchive/test/test_read_format_cab_lzx_16bit.c \
 	libarchive/test/test_read_format_cab_lzx_e8.c \
+	libarchive/test/test_read_format_cab_lzx_invalid_history.c \
 	libarchive/test/test_read_format_cab_lzx_oob.c \
 	libarchive/test/test_read_format_cab_mszip_oob.c \
 	libarchive/test/test_read_format_cab_multi.c \
@@ -906,6 +907,7 @@ libarchive_test_EXTRA_DIST=\
 	libarchive/test/test_read_format_7zip_malformed_numfiles_oom.7z.uu \
 	libarchive/test/test_read_format_7zip_packinfo_digests.7z.uu \
 	libarchive/test/test_read_format_7zip_ppmd.7z.uu \
+	libarchive/test/test_read_format_7zip_ppmd_small_block.7z.uu \
 	libarchive/test/test_read_format_7zip_sfx_boundary_elf.elf.uu \
 	libarchive/test/test_read_format_7zip_sfx_boundary_pe.exe.uu \
 	libarchive/test/test_read_format_7zip_sfx_elf.elf.uu \
@@ -927,6 +929,8 @@ libarchive_test_EXTRA_DIST=\
 	libarchive/test/test_read_format_cab_filename_cp932.cab.uu \
 	libarchive/test/test_read_format_cab_lzx_16bit.cab.uu \
 	libarchive/test/test_read_format_cab_lzx_e8.cab.uu \
+	libarchive/test/test_read_format_cab_lzx_invalid_history.cab.uu \
+	libarchive/test/test_read_format_cab_lzx_literal_control.cab.uu \
 	libarchive/test/test_read_format_cab_lzx_oob.cab.uu \
 	libarchive/test/test_read_format_cab_multi.p1.cab.uu \
 	libarchive/test/test_read_format_cab_multi.p2.cab.uu \
@@ -1066,6 +1070,7 @@ libarchive_test_EXTRA_DIST=\
 	libarchive/test/test_read_format_rar5_nonempty_dir_stream.rar.uu \
 	libarchive/test/test_read_format_rar5_dirdata.rar.uu \
 	libarchive/test/test_read_format_rar5_owner.rar.uu \
+	libarchive/test/test_read_format_rar5_owner_name_toolong.rar.uu \
 	libarchive/test/test_read_format_rar5_readtables_overflow.rar.uu \
 	libarchive/test/test_read_format_rar5_sfx.exe.uu \
 	libarchive/test/test_read_format_rar5_solid.rar.uu \
