@@ -132,6 +132,8 @@ static char const * const vcs_files[] = {
   ".hg", ".hgignore", ".hgtags",
   /* darcs */
   "_darcs",
+  /* jujutau */
+  ".jj",
   NULL
 };
 
